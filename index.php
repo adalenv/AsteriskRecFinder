@@ -8,29 +8,57 @@
 
 <?php 
 
-if (isset($_GET['s']) && $_GET[s]!='') {
+
+	$dir="/mnt/hdd/cron";
+
+
+if (isset($_GET['s']) && $_GET['s']!='') {
 
 	$string =$_GET['s'];
+
 	//////////////// search for a file////////////////////
-	$files = scandir('/var/spool/asterisk/monitorDONE/FTP');
-	$found = array();
-	foreach ($files as $key => $file) {
-		//echo $file;
-	    if (strpos($file, $string) !== false) {
-	        array_push($found,$file); 
-	    }
-	}
+
+	function find($dir, $pattern){
+    // escape any character in a string that might be used to trick
+    // a shell command into executing arbitrary commands
+    $dir = escapeshellcmd($dir);
+    // execute "find" and return string with found files
+    $files = shell_exec("find $dir -name '$pattern' -print");
+    // create array from the returned string (trim will strip the last newline)
+    $files = explode("\n", trim($files));
+    // return array
+    return $files;
+
+
+}
+
 	/////////////////////////////////////////////////////////
 
 
 	//////////////// echo files /////////////////////////////
-	foreach ($found as $key => $rec) {
-		echo '<a href="?download='.$rec.'">'.$rec.'</a></br>';
+  
+   $found=find($dir,$string);
+
+  	foreach ($found as $key => $rec) {
+		echo '<a href="?download='.$rec.'">'.end(explode("/", $rec)).'</a></br>';
 	}
+
+
 	/////////////////////////////////////////////////////////
 }
 
 
+
+
+//////////////////////// download file /////////////////
+if (isset($_GET['download'])) {
+	$from=$_GET['download'];
+	$n=explode("/", $_GET['download']);
+	$to='rec/'.end($n);
+	copy($from,$to);
+	header("Location: rec/".end($n));
+}
+///////////////////////////////////////////////////////
 
 ////////////////// delete cache /////////////////////////
 if (!isset($_GET['download'])){
@@ -48,16 +76,7 @@ foreach ($recs as $key => $rec) {
 /////////////////////////////////////////////////////////
 
 
-//////////////////////// download file /////////////////
-if (isset($_GET['download'])) {
-	$from='/var/spool/asterisk/monitorDONE/FTP/'.$_GET['download'];
-	$to='rec/'.$_GET['download'];
-	echo $from;
-	copy($from,$to);
-	header("Location: rec/".$_GET['download']);
-	unlink("rec/".$GET['download']);
-}
-///////////////////////////////////////////////////////
+
 
 ?>
 
