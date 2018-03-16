@@ -1,7 +1,7 @@
 
 <form action="" method="GET">
-	<input type="text" name="s">
-	<input type="submit" name="go" value="Search">
+    <input type="text" name="s">
+    <input type="submit" name="go" value="Search">
 </form>
 
 
@@ -9,16 +9,16 @@
 <?php 
 
 
-	$dir="/mnt/hdd/cron";
+    $dir="/mnt/hdd/cron";
 
 
 if (isset($_GET['s']) && $_GET['s']!='') {
 
-	$string =$_GET['s'];
+    $string =$_GET['s'];
 
-	//////////////// search for a file////////////////////
+    //////////////// search for a file////////////////////
 
-	function find($dir, $pattern){
+    function find($dir, $pattern){
     // escape any character in a string that might be used to trick
     // a shell command into executing arbitrary commands
     $dir = escapeshellcmd($dir);
@@ -32,48 +32,40 @@ if (isset($_GET['s']) && $_GET['s']!='') {
 
 }
 
-	/////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 
 
-	//////////////// echo files /////////////////////////////
+    //////////////// echo files /////////////////////////////
   
    $found=find($dir,$string);
 
-  	foreach ($found as $key => $rec) {
-		echo '<a href="?download='.$rec.'">'.end(explode("/", $rec)).'</a></br>';
-	}
+    foreach ($found as $key => $rec) {
+        echo '<a href="?download='.$rec.'">'.end(explode("/", $rec)).'</a></br>';
+    }
 
 
-	/////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////
 }
-
 
 
 
 //////////////////////// download file /////////////////
 if (isset($_GET['download'])) {
-	$from=$_GET['download'];
-	$n=explode("/", $_GET['download']);
-	$to='rec/'.end($n);
-	copy($from,$to);
-	header("Location: rec/".end($n));
+    $from=$_GET['download'];
+    $n=explode("/", $_GET['download']);
+    $to='rec/'.end($n);
+    copy($from,$to);
+    $name=$_GET['download'];
+    @header('Content-Type: application/force-download');
+    @header("Content-Disposition: attachment; filename=\"" . basename($name) . "\";");
+    ob_clean();
+    flush();
+    readfile($to); //showing the path to the server where the file is to be download
+    @unlink($to);
+    exit;
+ 
 }
 ///////////////////////////////////////////////////////
-
-////////////////// delete cache /////////////////////////
-if (!isset($_GET['download'])){
-$recs = scandir('rec');
-foreach ($recs as $key => $rec) {
-	
-	if($rec=='.' || $rec=='..'){
-
-	} else {
-			if(file_exists ('rec/'.$rec)){
-				unlink('rec/'.$rec);	
-			}
-	}
-}}
-/////////////////////////////////////////////////////////
 
 
 
