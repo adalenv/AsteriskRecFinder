@@ -32,32 +32,23 @@ if (isset($_GET['s']) && $_GET[s]!='') {
 
 
 
-////////////////// delete cache /////////////////////////
-if (!isset($_GET['download'])){
-$recs = scandir('rec');
-foreach ($recs as $key => $rec) {
-	
-	if($rec=='.' || $rec=='..'){
-
-	} else {
-			if(file_exists ('rec/'.$rec)){
-				unlink('rec/'.$rec);	
-			}
-	}
-}}
-/////////////////////////////////////////////////////////
-
-
 //////////////////////// download file /////////////////
 if (isset($_GET['download'])) {
 	$from='/var/spool/asterisk/monitorDONE/FTP/'.$_GET['download'];
 	$to='rec/'.$_GET['download'];
-	echo $from;
 	copy($from,$to);
-	header("Location: rec/".$_GET['download']);
-	unlink("rec/".$GET['download']);
+	$name=$_GET['download'];
+    @header('Content-Type: application/force-download');
+    @header("Content-Disposition: attachment; filename=\"" . basename($name) . "\";");
+    ob_clean();
+    flush();
+    readfile("rec/".$name); //showing the path to the server where the file is to be download
+    @unlink('rec/'.$name);
+    exit;
+
 }
 ///////////////////////////////////////////////////////
+
 
 ?>
 
